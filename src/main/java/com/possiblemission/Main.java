@@ -22,7 +22,7 @@ public class Main {
  
          jsonObject.put("messages", list);
  
-        try (FileWriter fileWriter = new FileWriter("Json/Export/person.json")) {
+        try (FileWriter fileWriter = new FileWriter("src/main/java/com/possiblemission/Json/Export/person.json")) {
  
              Jsoner.serialize(jsonObject, fileWriter);
  
