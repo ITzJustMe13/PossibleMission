@@ -1,33 +1,19 @@
 package com.possiblemission;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import com.github.cliftonlabs.json_simple.JsonArray;
-import com.github.cliftonlabs.json_simple.JsonObject;
-import com.github.cliftonlabs.json_simple.Jsoner;
+import com.github.cliftonlabs.json_simple.*;
+import com.possiblemission.Import.ImportJson;
+import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
+import com.possiblemission.game.Game;
 
 public class Main {
     public static void main(String[] args) {
-         // JSON String
-         JsonObject jsonObject = new JsonObject();
-         jsonObject.put("name", "mkyong");
-         jsonObject.put("age", 42);
- 
-         // JSON Array
-         JsonArray list = new JsonArray();
-         list.add("msg 1");
-         list.add("msg 2");
-         list.add("msg 3");
- 
-         jsonObject.put("messages", list);
- 
-        try (FileWriter fileWriter = new FileWriter("src/main/java/com/possiblemission/Json/Export/person.json")) {
- 
-             Jsoner.serialize(jsonObject, fileWriter);
- 
-        } catch (IOException e) {
-             throw new RuntimeException(e);
-        }
+
+        Game game = ImportJson.importJson("Json/Import/game.json");
+
+        System.out.println(game.getMap().toString());
     }
 }
