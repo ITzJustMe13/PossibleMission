@@ -3,6 +3,7 @@ package com.possiblemission.game;
 import com.possiblemission.datastructures.abstractdatatypes.binarytrees.heap.LinkedHeap;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedGraphADT;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedUndirectedMatrixGraph;
+import com.possiblemission.datastructures.abstractdatatypes.lists.ordered.OrderedArrayList;
 import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
 import com.possiblemission.entities.Enemy;
 import com.possiblemission.entities.HealthKit;
@@ -12,7 +13,10 @@ import com.possiblemission.entities.abstractEntities.Items;
 import com.possiblemission.entities.Player;
 
 import pt.ipp.estg.ed.HeapADT;
+import pt.ipp.estg.ed.OrderedListADT;
 import pt.ipp.estg.ed.UnorderedListADT;
+
+import java.util.Iterator;
 
 public class Game {
 
@@ -128,8 +132,24 @@ public class Game {
             }
         }
 
-        HeapADT<Path> paths = new LinkedHeap();
+        UnorderedListADT<Integer> cost = new UnorderedArrayList<>();
 
+        for(Division div : medkitsLocations){
+            Iterator it = map.iteratorShortestPath(player.getCurrentDivision(),div);
+            int count = 0;
+
+            while (it.hasNext()){
+                count++;
+                it.next();
+            }
+
+            cost.addToRear(count);
+        }
+
+        int min = (int) Double.POSITIVE_INFINITY;
+        for (int i = 0; i < cost.size(); i++){
+            if (cost. < min)
+        }
 
     }
 
