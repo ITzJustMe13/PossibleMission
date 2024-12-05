@@ -17,4 +17,9 @@ public class Target {
         return division;
     }
 
+    @Override
+    public String toString() {
+        return "TARGET:" + "\n" +"Divisao: " + division + "\n" +
+                "Type: " + type;
+    }
 }

@@ -23,14 +23,17 @@ public class ImportJson {
 
             JsonObject jsonObject = (JsonObject) Jsoner.deserialize(reader);
 
+            //GAME
             Game game = new Game((String)jsonObject.get("cod-missao"),((Number)jsonObject.get("versao")).intValue());
 
+            //MAPA
             JsonArray edificio = (JsonArray)jsonObject.get("edificio");
 
             for(Object division : edificio){
                 game.addDivision((String)division);
             }
 
+            //LIGACOES
             JsonArray ligacoes = (JsonArray)jsonObject.get("ligacoes");
 
             for (Object ligacao : ligacoes) {
@@ -40,6 +43,7 @@ public class ImportJson {
                 game.addLink(div, div2);
             }
 
+            //INIMIGOS
             JsonArray inimigos = (JsonArray)jsonObject.get("inimigos");
 
             for (Object o : inimigos) {
@@ -48,9 +52,12 @@ public class ImportJson {
                 String nome = inimigo.get("nome").toString();
                 int poder = Integer.parseInt(inimigo.get("poder").toString());
                 Division division = game.getDivisionByName(divisao);
-                division.addEnemy(new Enemy(nome, poder,division));
+                Enemy enemy = new Enemy(nome, poder,division);
+                division.addEnemy(enemy);
+                game.addEnemy(enemy);
             }
 
+            //ENTRADAS SAIDAS
             JsonArray entradasSaidas = (JsonArray)jsonObject.get("entradas-saidas");
 
             for (Object entradaSaida : entradasSaidas) {
@@ -59,6 +66,7 @@ public class ImportJson {
                 division.setExitOrEntry(true);
             }
 
+            //ALVO
             JsonObject target = (JsonObject)jsonObject.get("alvo");
 
             Division targetDivision = game.getDivisionByName((String) target.get("divisao"));
@@ -67,6 +75,9 @@ public class ImportJson {
 
             targetDivision.setTarget(alvo);
 
+            game.addTarget(alvo);
+
+            //items
             JsonArray itens = (JsonArray)jsonObject.get("itens");
             for (Object item : itens) {
                 JsonObject itemJson = (JsonObject) item;
@@ -74,9 +85,11 @@ public class ImportJson {
                 if(itemJson.get("tipo").toString().equals("kit de vida")){
                     HealthKit healthKit = new HealthKit(Integer.parseInt(itemJson.get("pontos-recuperados").toString()), division);
                     division.setItem(healthKit);
+                    game.addItem(healthKit);
                 } else if (itemJson.get("tipo").toString().equals("colete")) {
                     Armour colete = new Armour(Integer.parseInt(itemJson.get("pontos-extra").toString()), division);
                     division.setItem(colete);
+                    game.addItem(colete);
                 }else{
                     throw new IllegalArgumentException("Invalid Item type! : " + itemJson.get("tipo").toString());
                 }

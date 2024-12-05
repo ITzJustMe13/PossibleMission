@@ -15,5 +15,8 @@ public class Main {
         Game game = ImportJson.importJson("Json/Import/game.json");
 
         System.out.println(game.getMap().toString());
+        System.out.println("Items: \n"+game.getItems().toString());
+        System.out.println(game.getTarget().toString());
+        System.out.println("Enemies: \n"+ game.getEnemies().toString());
     }
 }

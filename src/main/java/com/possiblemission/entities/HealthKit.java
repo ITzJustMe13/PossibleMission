@@ -9,5 +9,8 @@ public class HealthKit extends Items {
         super(value,division);
     }
 
-
+    @Override
+    public String toString() {
+        return "HealthKit: " + value;
+    }
 }

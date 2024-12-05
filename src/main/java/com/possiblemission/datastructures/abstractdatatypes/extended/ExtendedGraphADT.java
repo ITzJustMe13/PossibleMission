@@ -6,4 +6,6 @@ public interface ExtendedGraphADT<T> extends GraphADT<T> {
 
     Object[] getVertexes();
 
+    Object[] getAdjentVertexes(Object vertex);
+
 }

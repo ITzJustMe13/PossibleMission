@@ -2,6 +2,7 @@ package com.possiblemission.entities.abstractEntities;
 
 import com.github.cliftonlabs.json_simple.Jsonable;
 import com.possiblemission.game.Division;
+import pt.ipp.estg.ed.UnorderedListADT;
 
 /**
  *
@@ -42,7 +43,17 @@ public abstract class Human implements Jsonable {
         this.currentDivision = currentDivision;
     }
 
+    public Division getCurrentDivision(){
+        return currentDivision;
+    }
+
     public void setHealth(int health) {
         this.health = health;
+    }
+
+
+    @Override
+    public String toString() {
+        return name + "Power: " + power + " Health: "+ health + " Division: " + currentDivision.toString();
     }
 }

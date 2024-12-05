@@ -8,4 +8,9 @@ public class Armour extends Items {
     public Armour(int value, Division division) {
         super(value, division);
     }
+
+    @Override
+    public String toString() {
+        return "Colete: " + value;
+    }
 }
