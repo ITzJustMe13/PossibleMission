@@ -2,6 +2,7 @@ package com.possiblemission.game;
 
 import com.possiblemission.datastructures.abstractdatatypes.queues.LinkedQueue;
 import com.possiblemission.entities.Enemy;
+import com.possiblemission.entities.Player;
 import com.possiblemission.entities.abstractEntities.Human;
 import pt.ipp.estg.ed.QueueADT;
 
@@ -30,9 +31,9 @@ public class GameManager {
 
     public boolean StartGame(){
         if(isManual){
-            ManualGame();
+             return ManualGame();
         }else {
-            AutomaticGame();
+            return AutomaticGame();
         }
     }
 
@@ -41,7 +42,11 @@ public class GameManager {
     }
 
     private boolean AutomaticGame(){
-        return true;
+        Human human = turn.dequeue();
+        if(human.getClass() == Player.class){
+            game.getMap().iteratorShortestPath(human.getCurrentDivision(),)
+        }
+        return false;
     }
 
 

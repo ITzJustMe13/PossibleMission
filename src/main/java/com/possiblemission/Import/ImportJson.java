@@ -43,6 +43,11 @@ public class ImportJson {
                 game.addLink(div, div2);
             }
 
+            //CHECK IF MAP IS VALID
+            if(!game.checkIfMapIsValid()){
+                throw new IllegalArgumentException("Invalid map!");
+            }
+
             //INIMIGOS
             JsonArray inimigos = (JsonArray)jsonObject.get("inimigos");
 
@@ -64,6 +69,7 @@ public class ImportJson {
                 String divisao = (String) entradaSaida;
                 Division division = game.getDivisionByName(divisao);
                 division.setExitOrEntry(true);
+                game.addEntryOrExit(division);
             }
 
             //ALVO

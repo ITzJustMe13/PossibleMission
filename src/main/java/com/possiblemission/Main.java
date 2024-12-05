@@ -7,6 +7,7 @@ import java.io.IOException;
 import com.github.cliftonlabs.json_simple.*;
 import com.possiblemission.Import.ImportJson;
 import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
+import com.possiblemission.entities.Player;
 import com.possiblemission.game.Game;
 
 public class Main {
@@ -18,5 +19,9 @@ public class Main {
         System.out.println("Items: \n"+game.getItems().toString());
         System.out.println(game.getTarget().toString());
         System.out.println("Enemies: \n"+ game.getEnemies().toString());
+
+        Player player = new Player("nome", 25, 100);
+
+        System.out.println(player.getClass());
     }
 }

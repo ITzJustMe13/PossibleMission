@@ -1,13 +1,17 @@
 package com.possiblemission.game;
 
+import com.possiblemission.datastructures.abstractdatatypes.binarytrees.heap.LinkedHeap;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedGraphADT;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedUndirectedMatrixGraph;
 import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
 import com.possiblemission.entities.Enemy;
+import com.possiblemission.entities.HealthKit;
 import com.possiblemission.entities.Target;
+import com.possiblemission.entities.abstractEntities.Human;
 import com.possiblemission.entities.abstractEntities.Items;
 import com.possiblemission.entities.Player;
 
+import pt.ipp.estg.ed.HeapADT;
 import pt.ipp.estg.ed.UnorderedListADT;
 
 public class Game {
@@ -26,12 +30,15 @@ public class Game {
 
     private Player player;
 
+    private UnorderedListADT<Division> EntriesAndExits;
+
     public Game(String codName, int version) {
         this.codName = codName;
         this.version = version;
         map = new ExtendedUndirectedMatrixGraph<>();
         items = new UnorderedArrayList<>();
         enemies = new UnorderedArrayList<>();
+        EntriesAndExits = new UnorderedArrayList<>();
     }
 
     public void addDivision(String divisionName) {
@@ -98,5 +105,35 @@ public class Game {
     public Division[] getAdjecentDivisions(Division division){
         Division[] divisions = (Division[]) map.getAdjentVertexes(division);
         return divisions;
+    }
+
+    public void addEntryOrExit(Division division){
+        EntriesAndExits.addToRear(division);
+    }
+
+    public UnorderedListADT<Division> getEntriesAndExits(){
+        return EntriesAndExits;
+    }
+
+    public void moveHuman(Division division, Human human){
+        human.setCurrentDivision(division);
+    }
+
+    public Division getClosestMedKit(Division division){
+        UnorderedListADT<Division> medkitsLocations = new UnorderedArrayList<>();
+
+        for (Items item : items){
+            if(item.getClass() == HealthKit.class){
+                medkitsLocations.addToRear(item.getDivision());
+            }
+        }
+
+        HeapADT<Path> paths = new LinkedHeap();
+
+
+    }
+
+    public boolean checkIfMapIsValid(){
+        return map.isConnected();
     }
 }
