@@ -99,6 +99,7 @@ public class Game {
         enemies.addToRear(enemy);
     }
 
+
     public void addPlayer(Player player){
         this.player = player;
     }
@@ -173,5 +174,9 @@ public class Game {
             }
         }
         return enemiesDiv;
+    }
+
+    public Items hasItem(Division division){
+        return division.getItem();
     }
 }

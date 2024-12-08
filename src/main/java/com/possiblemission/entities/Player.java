@@ -45,12 +45,24 @@ public class Player extends Human {
         }
     }
 
+    public void useArmour(Armour armour) {
+        this.health += armour.getValue();
+    }
+
     public HealthKit getTopHealthKit() {
         return backpack.peek();
     }
 
     public void setBackpackSize(int backpackSize) {
         this.backpackSize = backpackSize;
+    }
+
+    public boolean hasHealthKits(){
+        return !backpack.isEmpty();
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     @Override

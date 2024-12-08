@@ -47,6 +47,10 @@ public class Division {
         this.item = item;
     }
 
+    public Items getItem() {
+        return item;
+    }
+
     @Override
     public String toString() {
         return name;
