@@ -260,5 +260,14 @@ public abstract class ArrayList<T> implements ListADT<T> {
             expectedModCount++;
             okToRemove = false;
         }
+
+        /***
+         * returns T element in index
+         * @param index
+         * @return
+         */
+        public T get(int index){
+            return array[index];
+        }
     }
 }

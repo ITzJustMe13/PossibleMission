@@ -88,4 +88,14 @@ public class UnorderedArrayList<T> extends ArrayList<T> implements UnorderedList
 
         throw new NoSuchElementException("Target not found");
     }
+
+
+    /***
+     *
+     * @param index
+     * @return
+     */
+    public T get(int index){
+        return array[index];
+    }
 }

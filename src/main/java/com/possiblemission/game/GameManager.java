@@ -6,6 +6,8 @@ import com.possiblemission.entities.Player;
 import com.possiblemission.entities.abstractEntities.Human;
 import pt.ipp.estg.ed.QueueADT;
 
+import java.util.Iterator;
+
 public class GameManager {
 
     private Game game;
@@ -44,7 +46,13 @@ public class GameManager {
     private boolean AutomaticGame(){
         Human human = turn.dequeue();
         if(human.getClass() == Player.class){
-            game.getMap().iteratorShortestPath(human.getCurrentDivision(),)
+            Iterator<Division> it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestMedKit(human.getCurrentDivision()));
+            if(it.hasNext()){
+                game.moveHuman(it.next(),human);
+            }
+
+        }else{
+            Iterator<Division> it = game.getMap().iteratorBFS(human.getCurrentDivision()); //tem de andar num raio de 2 nodes
         }
         return false;
     }

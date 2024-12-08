@@ -3,6 +3,7 @@ package com.possiblemission.game;
 import com.possiblemission.datastructures.abstractdatatypes.binarytrees.heap.LinkedHeap;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedGraphADT;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedUndirectedMatrixGraph;
+import com.possiblemission.datastructures.abstractdatatypes.lists.ArrayList;
 import com.possiblemission.datastructures.abstractdatatypes.lists.ordered.OrderedArrayList;
 import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
 import com.possiblemission.entities.Enemy;
@@ -124,7 +125,7 @@ public class Game {
     }
 
     public Division getClosestMedKit(Division division){
-        UnorderedListADT<Division> medkitsLocations = new UnorderedArrayList<>();
+        UnorderedArrayList<Division> medkitsLocations = new UnorderedArrayList<>();
 
         for (Items item : items){
             if(item.getClass() == HealthKit.class){
@@ -135,7 +136,7 @@ public class Game {
         UnorderedListADT<Integer> cost = new UnorderedArrayList<>();
 
         for(Division div : medkitsLocations){
-            Iterator it = map.iteratorShortestPath(player.getCurrentDivision(),div);
+            Iterator it = map.iteratorShortestPath(division,div);
             int count = 0;
 
             while (it.hasNext()){
@@ -147,10 +148,17 @@ public class Game {
         }
 
         int min = (int) Double.POSITIVE_INFINITY;
-        for (int i = 0; i < cost.size(); i++){
-            if (cost. < min)
+        int divisionCounter = 0;
+        for (int custo : cost){
+            if (custo < min){
+                min = custo;
+            }
+            divisionCounter++;
         }
 
+        Division closestMedkit = medkitsLocations.get(divisionCounter);
+
+        return closestMedkit;
     }
 
     public boolean checkIfMapIsValid(){
