@@ -1,5 +1,6 @@
 package com.possiblemission.game;
 
+import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
 import com.possiblemission.datastructures.abstractdatatypes.queues.LinkedQueue;
 import com.possiblemission.entities.Enemy;
 import com.possiblemission.entities.Player;
@@ -15,6 +16,8 @@ public class GameManager {
     private QueueADT<Human> turn;
 
     private boolean isManual;
+
+    private Human currentTurn;
 
     public GameManager(Game game, boolean isManual){
         this.game = game;
@@ -39,22 +42,46 @@ public class GameManager {
         }
     }
 
-    private boolean ManualGame(){
+    private Boolean ManualGame(){
         return true;
     }
 
-    private boolean AutomaticGame(){
+    private Boolean AutomaticGame(){
         Human human = turn.dequeue();
+        currentTurn = human;
         if(human.getClass() == Player.class){
             Iterator<Division> it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestMedKit(human.getCurrentDivision()));
             if(it.hasNext()){
                 game.moveHuman(it.next(),human);
             }
 
+            UnorderedArrayList<Enemy> enemiesDivision = game.hasEnemies(human.getCurrentDivision());
+
+            if(enemiesDivision.isEmpty()){
+                return null;
+            }else{
+                Battle(human, enemiesDivision);
+            }
+
+
+            //return a null se o jogo n terminar , false se ele perder e true se ele ganhar
+
         }else{
             Iterator<Division> it = game.getMap().iteratorBFS(human.getCurrentDivision()); //tem de andar num raio de 2 nodes
         }
-        return false;
+
+    }
+
+
+
+    private Boolean Battle(Human human, UnorderedArrayList<Enemy> enemies){
+        do{
+            if(currentTurn.getClass().equals(Player.class)){
+
+            }
+        }while (human.getHealth() != 0  || !enemies.isEmpty());
+
+
     }
 
 

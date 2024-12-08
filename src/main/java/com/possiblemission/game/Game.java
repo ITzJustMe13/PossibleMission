@@ -164,4 +164,14 @@ public class Game {
     public boolean checkIfMapIsValid(){
         return map.isConnected();
     }
+
+    public UnorderedArrayList<Enemy> hasEnemies(Division division){
+        UnorderedArrayList<Enemy> enemiesDiv = new UnorderedArrayList<>();
+        for(Enemy enemy: enemies){
+            if(enemy.getCurrentDivision().equals(division)){
+                enemiesDiv.addToRear(enemy);
+            }
+        }
+        return enemiesDiv;
+    }
 }

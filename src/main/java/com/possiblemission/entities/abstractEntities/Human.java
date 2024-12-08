@@ -51,6 +51,8 @@ public abstract class Human implements Jsonable {
         this.health = health;
     }
 
+    public int getHealth(){return  this.health;}
+
 
     @Override
     public String toString() {
