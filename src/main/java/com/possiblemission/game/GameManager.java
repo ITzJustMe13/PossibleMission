@@ -109,12 +109,12 @@ public class GameManager {
                 }
 
             }else{
-                Iterator<Division> it = game.getMap().iteratorBFS(human.getCurrentDivision());
-                //enemy turn
+                Boolean enemyTurn = EnemyTurn(human);
+                if(EnemyTurn(human) != null){
+                    return enemyTurn;
+                }
             }
         }
-
-
     }
 
 
@@ -130,11 +130,7 @@ public class GameManager {
                 PlayerStrike(human, enemies);
             }
         }while (human.getHealth() != 0  || !enemies.isEmpty());
-        if(enemies.isEmpty()){
-            return true;
-        }else{
-            return false;
-        }
+        return enemies.isEmpty();
 
     }
 
@@ -149,6 +145,10 @@ public class GameManager {
 
     private Player initializePlayer(String name){
         return new Player(name,20,100);
+    }
+
+    private Boolean EnemyTurn(Human human){
+        Iterator<Division> it = game.getMap().iteratorBFS(human.getCurrentDivision());
     }
 
 
