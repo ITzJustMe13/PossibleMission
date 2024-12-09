@@ -148,7 +148,34 @@ public class GameManager {
     }
 
     private Boolean EnemyTurn(Human human){
-        Iterator<Division> it = game.getMap().iteratorBFS(human.getCurrentDivision());
+        Enemy enemy = (Enemy) human;
+        if(enemy.getDept() == 2){
+            enemy.subtractDept();
+            game.moveHuman(enemy.getLastDiv(),enemy);
+            enemy.getLastDiv().addEnemy(enemy);
+        }
+        Iterator<Division> it = game.getMap().iteratorBFS(enemy.getCurrentDivision());
+        if(it.hasNext()){
+            Division nextDiv = it.next();
+            if(nextDiv != enemy.getBaseDiv()){
+                game.moveHuman(nextDiv, enemy);
+                nextDiv.addEnemy(enemy);
+            }else{
+                enemy.subtractDept();
+                game.moveHuman(nextDiv,enemy);
+                nextDiv.addEnemy(enemy);
+            }
+        }
+
+        if(enemy.getCurrentDivision().equals(game.getPlayer().getCurrentDivision())){
+            UnorderedArrayList<Enemy> enemies = (UnorderedArrayList<Enemy>) enemy.getCurrentDivision().getEnemies();
+
+            boolean playerWinsBattle = Battle(game.getPlayer(),enemies);
+            if(!playerWinsBattle){
+                return false;
+            }
+        }
+        return null;
     }
 
 

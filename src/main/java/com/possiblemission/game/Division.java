@@ -51,6 +51,10 @@ public class Division {
         return item;
     }
 
+    public UnorderedListADT<Enemy> getEnemies(){
+        return this.enemies;
+    }
+
     @Override
     public String toString() {
         return name;

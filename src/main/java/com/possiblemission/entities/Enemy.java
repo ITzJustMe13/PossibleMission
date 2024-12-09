@@ -10,9 +10,37 @@ import java.io.Writer;
 
 public class Enemy extends Human {
 
+    private int dept;
+
+    private Division baseDiv;
+
+    private Division lastDiv;
+
     public Enemy(String name, int power, Division division) {
         super(name, power,100);
         setCurrentDivision(division);
+        this.baseDiv = division;
+        this.dept = 0;
+    }
+
+    public Division getBaseDiv(){
+        return this.baseDiv;
+    }
+
+    public Division getLastDiv(){
+        return this.lastDiv;
+    }
+
+    public void addDept(){
+        this.dept++;
+    }
+
+    public void subtractDept(){
+        this.dept--;
+    }
+
+    public int getDept(){
+        return this.dept;
     }
 
     @Override
