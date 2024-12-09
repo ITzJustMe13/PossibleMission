@@ -1,10 +1,7 @@
 package com.possiblemission.game;
 
-import com.possiblemission.datastructures.abstractdatatypes.binarytrees.heap.LinkedHeap;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedGraphADT;
 import com.possiblemission.datastructures.abstractdatatypes.extended.ExtendedUndirectedMatrixGraph;
-import com.possiblemission.datastructures.abstractdatatypes.lists.ArrayList;
-import com.possiblemission.datastructures.abstractdatatypes.lists.ordered.OrderedArrayList;
 import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
 import com.possiblemission.entities.Enemy;
 import com.possiblemission.entities.HealthKit;
@@ -13,8 +10,6 @@ import com.possiblemission.entities.abstractEntities.Human;
 import com.possiblemission.entities.abstractEntities.Items;
 import com.possiblemission.entities.Player;
 
-import pt.ipp.estg.ed.HeapADT;
-import pt.ipp.estg.ed.OrderedListADT;
 import pt.ipp.estg.ed.UnorderedListADT;
 
 import java.util.Iterator;
@@ -87,6 +82,15 @@ public class Game {
         this.alvo = target;
     }
 
+    public boolean hasMedKits(){
+        for(Items item: items){
+            if(item.getClass().equals(HealthKit.class)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Target getTarget(){
         return alvo;
     }
@@ -117,8 +121,8 @@ public class Game {
         EntriesAndExits.addToRear(division);
     }
 
-    public UnorderedListADT<Division> getEntriesAndExits(){
-        return EntriesAndExits;
+    public UnorderedArrayList<Division> getEntriesAndExits(){
+        return (UnorderedArrayList<Division>) EntriesAndExits;
     }
 
     public void moveHuman(Division division, Human human){
@@ -134,10 +138,10 @@ public class Game {
             }
         }
 
-        UnorderedListADT<Integer> cost = new UnorderedArrayList<>();
+        UnorderedArrayList<Integer> cost = new UnorderedArrayList<>();
 
-        for(Division div : medkitsLocations){
-            Iterator it = map.iteratorShortestPath(division,div);
+        for(int i=0; i<medkitsLocations.size(); i++){
+            Iterator<Division> it = map.iteratorShortestPath(division,medkitsLocations.get(i));
             int count = 0;
 
             while (it.hasNext()){
@@ -149,17 +153,67 @@ public class Game {
         }
 
         int min = (int) Double.POSITIVE_INFINITY;
-        int divisionCounter = 0;
-        for (int custo : cost){
-            if (custo < min){
-                min = custo;
+        int i;
+        for (i = 0; i < medkitsLocations.size(); i++){
+            if (cost.get(i) < min){
+                min = cost.get(i);
             }
-            divisionCounter++;
         }
 
-        Division closestMedkit = medkitsLocations.get(divisionCounter);
+        return medkitsLocations.get(i-1);
+    }
 
-        return closestMedkit;
+    public Division getBestEntry(){
+        UnorderedArrayList<Integer> cost = new UnorderedArrayList<>();
+
+        for(int i=0; i< getEntriesAndExits().size(); i++){
+            Iterator<Division> it = map.iteratorShortestPath(getEntriesAndExits().get(i),alvo.getDivision());
+            int count = 0;
+
+            while (it.hasNext()){
+                count++;
+                it.next();
+            }
+
+            cost.addToRear(count);
+        }
+
+        int min = (int) Double.POSITIVE_INFINITY;
+        int i;
+        for (i = 0; i < getEntriesAndExits().size(); i++){
+            if (cost.get(i) < min){
+                min = cost.get(i);
+            }
+        }
+
+        return getEntriesAndExits().get(i-1);
+    }
+
+
+    public Division getClosestExit(Division division){
+        UnorderedArrayList<Integer> cost = new UnorderedArrayList<>();
+
+        for(int i=0; i< getEntriesAndExits().size(); i++){
+            Iterator<Division> it = map.iteratorShortestPath(division,getEntriesAndExits().get(i));
+            int count = 0;
+
+            while (it.hasNext()){
+                count++;
+                it.next();
+            }
+
+            cost.addToRear(count);
+        }
+
+        int min = (int) Double.POSITIVE_INFINITY;
+        int i;
+        for (i = 0; i < getEntriesAndExits().size(); i++){
+            if (cost.get(i) < min){
+                min = cost.get(i);
+            }
+        }
+
+        return getEntriesAndExits().get(i-1);
     }
 
     public boolean checkIfMapIsValid(){
@@ -178,5 +232,17 @@ public class Game {
 
     public Items hasItem(Division division){
         return division.getItem();
+    }
+
+    public boolean isExit(Division division) {
+        return getEntriesAndExits().contains(division);
+    }
+
+    public String getCodName(){
+        return codName;
+    }
+
+    public int getCodId(){
+        return version;
     }
 }

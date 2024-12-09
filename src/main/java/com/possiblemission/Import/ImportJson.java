@@ -4,10 +4,8 @@ import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonException;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
-import com.possiblemission.entities.Armour;
-import com.possiblemission.entities.Enemy;
-import com.possiblemission.entities.HealthKit;
-import com.possiblemission.entities.Target;
+import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
+import com.possiblemission.entities.*;
 import com.possiblemission.game.Division;
 import com.possiblemission.game.Game;
 
@@ -101,8 +99,39 @@ public class ImportJson {
                 }
 
             }
+
+
             return game;
 
+        } catch (IOException | JsonException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+    public static UnorderedArrayList<FinishedGame> importGames(String path) {
+        UnorderedArrayList<FinishedGame> games = new UnorderedArrayList<>();
+        try (FileReader reader = new FileReader(path)) {
+            JsonObject jsonObject = (JsonObject) Jsoner.deserialize(reader);
+            UnorderedArrayList<String> moves = new UnorderedArrayList<>();
+
+            JsonArray movesJson = (JsonArray)jsonObject.get("moves");
+
+            for(Object division : movesJson){
+                moves.addToRear((String)division);
+            }
+
+            FinishedGame finishedGame = new FinishedGame((String)jsonObject.get("mission"),
+                    ((Number)jsonObject.get("version")).intValue(),
+                    (String)jsonObject.get("name"),
+                    ((Number)jsonObject.get("health")).intValue(),
+                    moves);
+
+
+            games.addToRear(finishedGame);
+
+            return games;
         } catch (IOException | JsonException e) {
             throw new RuntimeException(e);
         }

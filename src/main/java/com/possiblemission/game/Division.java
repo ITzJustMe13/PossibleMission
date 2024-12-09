@@ -34,6 +34,10 @@ public class Division {
         enemies.addToRear(enemy);
     }
 
+    public void removeEnemy(Enemy enemy){
+        enemies.remove(enemy);
+    }
+
     public void setExitOrEntry(boolean exitOrEntry) {
         isExitOrEntry = exitOrEntry;
     }

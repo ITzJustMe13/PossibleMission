@@ -1,0 +1,7 @@
+{
+  "mission":"pata de coelho",
+  "moves":["Escada 2","Corredor 1","Escada 3","Hall","Seguranca","Corredor 2","Escada 4","Escritorio 3","Escada 5","Laboratorio","Escada 5","Escritorio 3","Escada 4","Corredor 2","Seguranca","Hall","Escada 3","Corredor 1","Escada 2","Porteiro"],
+  "name":"antonio",
+  "health":105,
+  "version":1
+ }

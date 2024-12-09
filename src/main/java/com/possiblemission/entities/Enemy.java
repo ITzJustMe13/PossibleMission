@@ -43,6 +43,10 @@ public class Enemy extends Human {
         return this.dept;
     }
 
+    public void setLastDiv(Division div){
+        this.lastDiv = div;
+    }
+
     @Override
     public String toJson() {
         final StringWriter writable = new StringWriter();

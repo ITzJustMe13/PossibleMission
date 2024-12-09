@@ -12,16 +12,9 @@ import com.possiblemission.game.Game;
 
 public class Main {
     public static void main(String[] args) {
+        String path = "Json/Export/gameData.json";
+        Game game = ImportJson.importJson(path);
 
-        Game game = ImportJson.importJson("Json/Import/game.json");
 
-        System.out.println(game.getMap().toString());
-        System.out.println("Items: \n"+game.getItems().toString());
-        System.out.println(game.getTarget().toString());
-        System.out.println("Enemies: \n"+ game.getEnemies().toString());
-
-        Player player = new Player("nome", 25, 100);
-
-        System.out.println(player.getClass());
     }
 }
