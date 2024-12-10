@@ -27,12 +27,15 @@ public class GameManager {
 
     private boolean playerIsEscaping;
 
+    UnorderedArrayList<Enemy> enemiesDivision;
+
     public GameManager(Game game, boolean isManual, String playerName){
         this.game = game;
         this.turn = new LinkedQueue<>();
         this.isManual = isManual;
         this.playerIsEscaping = false;
         this.moves = new UnorderedArrayList<>();
+        this.enemiesDivision = new UnorderedArrayList<>();
         game.addPlayer(initializePlayer(playerName));
         turn.enqueue(game.getPlayer());
         for(Enemy enemy : game.getEnemies()){
@@ -45,7 +48,7 @@ public class GameManager {
     }
 
 
-    public boolean StartGame(Difficulty difficulty){
+    public boolean startGame(Difficulty difficulty){
         UnorderedArrayList<Enemy> enemies = (UnorderedArrayList<Enemy>) game.getEnemies();
         if(difficulty == Difficulty.EASY){
             int[] HealthPool = new int[] {10,15,20};
@@ -86,62 +89,30 @@ public class GameManager {
             currentTurn = human;
             if(human.getClass() == Player.class){
                 Iterator<Division> it = null;
-                if(playerIsEscaping){
-                    it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestExit(human.getCurrentDivision()));
-                } else if (game.hasMedKits()) {
-                    it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getTarget().getDivision());
-                } else{
-                    it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestMedKit(human.getCurrentDivision()));
-                }
-                if(it.hasNext()){
-                    it.next();
-                    Division move = it.next();
-                    game.moveHuman(move,human);
-                    moves.addToRear(move);
-                    System.out.println(human.getName() + " moved to " + human.getCurrentDivision());
-                    if(game.isExit(human.getCurrentDivision()) && playerIsEscaping){
-                        return true;
-                    }
-                }
-
-                UnorderedArrayList<Enemy> enemiesDivision = game.hasEnemies(human.getCurrentDivision());
-
-                if(!enemiesDivision.isEmpty()){
-                    System.out.println("Player started a battle");
-                    boolean playerWinsBattle = Battle(human, enemiesDivision);
-                    if(!playerWinsBattle){
+                if(((Player) human).hasHealthKits() && (((Player) human).getMaxHealth() - human.getHealth()) >= ((Player) human).getTopHealthKit().getValue()){
+                    System.out.println("Player heals himself: +" +((Player) human).getTopHealthKit().getValue());
+                    ((Player) human).useHealthKit();
+                } else if(human.isInBattle()){
+                    enemiesDivision = (UnorderedArrayList<Enemy>) human.getCurrentDivision().getEnemies();
+                    boolean playerWins = Battle(human,enemiesDivision);
+                    if(!playerWins){
                         return false;
                     }
-                }
-
-
-                Items item = game.hasItem(human.getCurrentDivision());
-                if(item != null){
-                    System.out.println("Player found an item!");
-                    if(item.getClass().equals(HealthKit.class)){
-                        System.out.println("Player added a healthkit with: "+ item.getValue() +" health");
-                        ((Player) human).addHealthKit((HealthKit) item);
-                        game.getItems().remove(item);
-                    }else{
-                        System.out.println("Player used a armour: +" + item.getValue());
-                        ((Player) human).useArmour((Armour) item);
+                }else{
+                    if(handleMovement(human)){
+                        return true;
                     }
-                }
-
-                if(((Player) human).hasHealthKits()){
-                    if((((Player) human).getMaxHealth() - human.getHealth()) >= ((Player) human).getTopHealthKit().getValue()){
-                        System.out.println("Player heals himself: +" +((Player) human).getTopHealthKit().getValue());
-                        ((Player) human).useHealthKit();
+                    if(!handleEnemies(human)){
+                        return false;
                     }
+                    handleItems(human);
                 }
-
                 if(PlayerWins()){
                     playerIsEscaping = true;
                     System.out.println("Player captured the target!");
                 }
 
             }else{
-
                 Boolean enemyTurn = EnemyTurn(human);
                 if(enemyTurn != null){
                     return enemyTurn;
@@ -154,40 +125,29 @@ public class GameManager {
 
 
     private boolean Battle(Human human, UnorderedArrayList<Enemy> enemies){
-        while (true){
-            if(currentTurn.getClass().equals(Player.class)){
-                PlayerStrike(human, enemies);
-                if(enemies.isEmpty()){
-                    return true;
-                }
-                human.setHealth(human.getHealth() - enemies.first().getPower());
-                System.out.println(enemies.first().getName() + " strikes " + enemies.first().getPower() + " health from: Player");
-                if(human.getHealth() <= 0){
-                    return false;
-                }
-            }else{
-                human.setHealth(human.getHealth() - enemies.first().getPower());
-                System.out.println(enemies.first().getName() + " strikes " + enemies.first().getPower() + " health from: Player");
-                if(human.getHealth() <= 0){
-                    return false;
-                }
-
-                PlayerStrike(human, enemies);
-                if(enemies.isEmpty()){
-                    return true;
-                }
+        if(currentTurn.getClass().equals(Player.class)){
+            PlayerStrike(human, enemies);
+            if(enemies.isEmpty()){
+                human.setIsInBattle(false);
+                return true;
             }
+        }else{
+            human.setHealth(human.getHealth() - enemies.first().getPower());
+            System.out.println(enemies.first().getName() + " strikes " + enemies.first().getPower() + " health from: Player");
         }
-
-
+        return human.getHealth() > 0;
     }
 
     private void PlayerStrike(Human human, UnorderedArrayList<Enemy> enemies) {
-        enemies.first().setHealth(enemies.first().getHealth() - human.getPower());
-        System.out.println("Player strikes " + human.getPower() + " health from: " + enemies.first().getName());
-        if(enemies.first().getHealth() <= 0){
-            System.out.println(enemies.first().getName() + " dies...");
-            enemies.removeFirst();
+        for(Enemy enemy: enemies){
+            enemy.setHealth(enemy.getHealth() - human.getPower());
+            System.out.println("Player strikes " + human.getPower() + " health from: " + enemy.getName());
+            if(enemy.getHealth() <= 0){
+                System.out.println(enemy.getName() + " dies...");
+                enemies.remove(enemy);
+                game.removeEnemy(enemy);
+                enemy.setCurrentDivision(null);
+            }
         }
     }
 
@@ -200,41 +160,54 @@ public class GameManager {
     }
 
     private Boolean EnemyTurn(Human human){
-        Enemy enemy = (Enemy) human;
-        Division currDiv = enemy.getCurrentDivision();
-        Division lastDiv = enemy.getLastDiv();
-        enemy.setLastDiv(currDiv);
-        currDiv.removeEnemy(enemy);
-        if(enemy.getDept() == 2){
-            enemy.subtractDept();
-            game.moveHuman(lastDiv,enemy);
-            enemy.getCurrentDivision().addEnemy(enemy);
-            System.out.println(enemy.getName()+ " moved to: " + lastDiv.getName());
-            return null;
-        }
-        Iterator<Division> it = game.getMap().iteratorBFS(enemy.getCurrentDivision());
-        if(it.hasNext()){
-            it.next();
-            Division nextDiv = it.next();
-            if (nextDiv == enemy.getBaseDiv()) {
+        UnorderedArrayList<Enemy> enemies = new UnorderedArrayList<>();
+        if(!human.isInBattle()){
+            Enemy enemy = (Enemy) human;
+            Division currDiv = enemy.getCurrentDivision();
+            Division lastDiv = enemy.getLastDiv();
+            enemy.setLastDiv(currDiv);
+            currDiv.removeEnemy(enemy);
+            if(enemy.getDept() == 2){
                 enemy.subtractDept();
+                game.moveHuman(lastDiv,enemy);
+                enemy.getCurrentDivision().addEnemy(enemy);
+                System.out.println(enemy.getName()+ " moved to: " + lastDiv.getName());
             }else{
-                enemy.addDept();
+                Iterator<Division> it = game.getMap().iteratorBFS(enemy.getCurrentDivision());
+                if(it.hasNext()){
+                    it.next();
+                    Division nextDiv = it.next();
+                    if (nextDiv == enemy.getBaseDiv()) {
+                        enemy.subtractDept();
+                    }else{
+                        enemy.addDept();
+                    }
+                    game.moveHuman(nextDiv, enemy);
+                    nextDiv.addEnemy(enemy);
+                    System.out.println(enemy.getName()+ " moved to: " + nextDiv.getName());
+                }
             }
-            game.moveHuman(nextDiv, enemy);
-            nextDiv.addEnemy(enemy);
-            System.out.println(enemy.getName()+ " moved to: " + nextDiv.getName());
-        }
+            if(enemy.getCurrentDivision().equals(game.getPlayer().getCurrentDivision())){
+                enemies = (UnorderedArrayList<Enemy>) enemy.getCurrentDivision().getEnemies();
 
-        if(enemy.getCurrentDivision().equals(game.getPlayer().getCurrentDivision())){
-            UnorderedArrayList<Enemy> enemies = (UnorderedArrayList<Enemy>) enemy.getCurrentDivision().getEnemies();
+                System.out.println(enemy.getName() + " started battle with Player");
+                human.setIsInBattle(true);
+                game.getPlayer().setIsInBattle(true);
+                boolean playerWinsBattle = Battle(game.getPlayer(),enemies);
 
-            System.out.println(enemy.getName() + " started battle with Player");
+                if(!playerWinsBattle){
+                    return false;
+                }
+            }
+        }else{
+            enemies = (UnorderedArrayList<Enemy>) human.getCurrentDivision().getEnemies();
             boolean playerWinsBattle = Battle(game.getPlayer(),enemies);
+
             if(!playerWinsBattle){
                 return false;
             }
         }
+
         return null;
     }
 
@@ -244,6 +217,56 @@ public class GameManager {
 
     public UnorderedArrayList<Division> getMoves(){
         return moves;
+    }
+
+
+    private void handleItems(Human human){
+        Items item = game.hasItem(human.getCurrentDivision());
+        if(item != null){
+            System.out.println("Player found an item!");
+            if(item.getClass().equals(HealthKit.class)){
+                System.out.println("Player added a healthkit with: "+ item.getValue() +" health");
+                ((Player) human).addHealthKit((HealthKit) item);
+                game.getItems().remove(item);
+                human.getCurrentDivision().removeItem();
+            }else{
+                System.out.println("Player used a armour: +" + item.getValue());
+                ((Player) human).useArmour((Armour) item);
+            }
+        }
+    }
+
+    private boolean handleEnemies(Human human){
+        enemiesDivision = game.hasEnemies(human.getCurrentDivision());
+        if(!enemiesDivision.isEmpty()){
+            System.out.println("Player started battle");
+            human.setIsInBattle(true);
+            for(Enemy enemy: human.getCurrentDivision().getEnemies()){
+                enemy.setIsInBattle(true);
+            }
+            return Battle(human, enemiesDivision);
+        }
+        return true;
+    }
+
+    private boolean handleMovement(Human human){
+        Iterator<Division> it = null;
+        if(playerIsEscaping){
+            it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestExit(human.getCurrentDivision()));
+        } else if (game.hasMedKits()) {
+            it = game.getMap().iteratorShortestPath(human.getCurrentDivision(), game.getTarget().getDivision());
+        }else{
+            it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestMedKit(human.getCurrentDivision()));
+        }
+        if(it.hasNext()){
+            it.next();
+            Division move = it.next();
+            game.moveHuman(move,human);
+            moves.addToRear(move);
+            System.out.println(human.getName() + " moved to " + human.getCurrentDivision());
+            return game.isExit(human.getCurrentDivision()) && playerIsEscaping;
+        }
+        return false;
     }
 
 

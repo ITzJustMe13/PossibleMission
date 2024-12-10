@@ -17,6 +17,8 @@ public abstract class Human implements Jsonable {
 
     protected int power;
 
+    protected boolean isInBattle;
+
     public Human(String name, int power, int health) {
         this.name = name;
         this.power = power;
@@ -53,6 +55,13 @@ public abstract class Human implements Jsonable {
 
     public int getHealth(){return  this.health;}
 
+    public void setIsInBattle(boolean isInBattle) {
+        this.isInBattle = isInBattle;
+    }
+
+    public boolean isInBattle(){
+        return this.isInBattle;
+    }
 
     @Override
     public String toString() {

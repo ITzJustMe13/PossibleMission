@@ -63,4 +63,8 @@ public class Division {
     public String toString() {
         return name;
     }
+
+    public void removeItem() {
+        this.item = null;
+    }
 }

@@ -103,6 +103,10 @@ public class Game {
         enemies.addToRear(enemy);
     }
 
+    public void removeEnemy(Enemy enemy){
+        enemies.remove(enemy);
+    }
+
 
     public void addPlayer(Player player){
         this.player = player;

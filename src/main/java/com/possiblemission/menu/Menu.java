@@ -57,7 +57,7 @@ public class Menu {
 //        int start = in.nextInt();
 //        game.getPlayer().setCurrentDivision(entries.get(start));
 
-        boolean result = gameManager.StartGame(difficulty);
+        boolean result = gameManager.startGame(difficulty);
 
         if(result) {
             System.out.println("Player " + playerName + " won the game with " + game.getPlayer().getHealth() + " health");
