@@ -12,6 +12,7 @@ import com.possiblemission.entities.abstractEntities.Items;
 import pt.ipp.estg.ed.QueueADT;
 
 import java.util.Iterator;
+import java.util.Scanner;
 
 public class GameManager {
 
@@ -70,14 +71,81 @@ public class GameManager {
             game.getPlayer().setBackpackSize(1);
         }
         if(isManual){
-             return ManualGame();
+            return ManualGame();
         }else {
             return AutomaticGame();
         }
     }
 
     private Boolean ManualGame(){
-        return true;
+        while(true){
+            Human human = turn.dequeue();
+            while(human.getHealth() <= 0){
+                human = turn.dequeue();
+            }
+            currentTurn = human;
+            if(human.getClass() == Player.class){
+                if(!human.isInBattle()){
+                    int choice = 0;
+                    while(choice == 0 && choice != 1 && choice != 2){
+
+                        System.out.println("Enemies: ");
+                        for(Enemy enemy : game.getEnemies()){
+                            System.out.println(enemy.getName()+ " Division: " + enemy.getCurrentDivision().getName());
+                        }
+
+                        System.out.println("Items: ");
+                        for(Items item : game.getItems()){
+                            System.out.println(item.toString());
+                        }
+
+                        System.out.println("Target: "+ game.getTarget().getDivision().getName());
+
+                        System.out.println("Current Division: "+ game.getPlayer().getCurrentDivision().getName());
+
+                        System.out.println("Want to 1-move or use 2-Healthkit? HK: ");
+                        if(((Player) human).hasHealthKits()){
+                            System.out.println(((Player) human).getTopHealthKit().getValue());
+                        }
+                        Scanner scanner = new Scanner(System.in);
+                        choice = scanner.nextInt();
+                    }
+
+
+                    if(choice == 1){
+                        if(handleManualMove(human)){
+                            return true;
+                        }
+                        if(!handleEnemies(human)){
+                            return false;
+                        }
+                        handleItems(human);
+                    }else if(choice == 2){
+                        System.out.println("Player heals himself: +" +((Player) human).getTopHealthKit().getValue());
+                        ((Player) human).useHealthKit();
+                    }
+                }else{
+                    enemiesDivision = (UnorderedArrayList<Enemy>) human.getCurrentDivision().getEnemies();
+                    boolean playerWins = Battle(human,enemiesDivision);
+                    if(!playerWins){
+                        return false;
+                    }
+                }
+
+                if(PlayerWins()){
+                    playerIsEscaping = true;
+                    System.out.println("Player captured the target!");
+                }
+
+            }else{
+                Boolean enemyTurn = EnemyTurn(human);
+                if(enemyTurn != null){
+                    return enemyTurn;
+                }
+
+            }
+            turn.enqueue(human);
+        }
     }
 
     private boolean AutomaticGame(){
@@ -139,12 +207,14 @@ public class GameManager {
     }
 
     private void PlayerStrike(Human human, UnorderedArrayList<Enemy> enemies) {
-        for(Enemy enemy: enemies){
+        Iterator<Enemy> iterator = enemies.iterator();
+        while (iterator.hasNext()) {
+            Enemy enemy = iterator.next();
             enemy.setHealth(enemy.getHealth() - human.getPower());
             System.out.println("Player strikes " + human.getPower() + " health from: " + enemy.getName());
-            if(enemy.getHealth() <= 0){
+            if (enemy.getHealth() <= 0) {
                 System.out.println(enemy.getName() + " dies...");
-                enemies.remove(enemy);
+                iterator.remove();
                 game.removeEnemy(enemy);
                 enemy.setCurrentDivision(null);
             }
@@ -253,7 +323,7 @@ public class GameManager {
         Iterator<Division> it = null;
         if(playerIsEscaping){
             it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestExit(human.getCurrentDivision()));
-        } else if (game.hasMedKits()) {
+        } else if (!game.hasMedKits()) {
             it = game.getMap().iteratorShortestPath(human.getCurrentDivision(), game.getTarget().getDivision());
         }else{
             it = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestMedKit(human.getCurrentDivision()));
@@ -267,6 +337,74 @@ public class GameManager {
             return game.isExit(human.getCurrentDivision()) && playerIsEscaping;
         }
         return false;
+    }
+
+    private boolean handleManualMove(Human human){
+        Iterator<Division> itTarget = null;
+        Iterator<Division> itHealth = null;
+        Iterator<Division> itExit = null;
+        Division target = null;
+        Division health = null;
+        Division exit = null;
+        if(playerIsEscaping){
+            itExit = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestExit(human.getCurrentDivision()));
+        } else {
+            itTarget = game.getMap().iteratorShortestPath(human.getCurrentDivision(), game.getTarget().getDivision());
+        }
+        if (game.hasMedKits()){
+            itHealth = game.getMap().iteratorShortestPath(human.getCurrentDivision(),game.getClosestMedKit(human.getCurrentDivision()));
+        }
+
+        if(itTarget!=null) {
+            target = getDivFromIterator(itTarget);
+        }
+        if(itHealth!=null) {
+            health = getDivFromIterator(itHealth);
+        }
+        if(itExit!=null) {
+            exit = getDivFromIterator(itExit);
+        }
+
+        int choice = 0;
+
+        if(target != null){
+            System.out.println("PATHS: \n1-Target: "+ target.getName());
+        }
+        if(health != null){
+            System.out.println("PATHS: \n2-Health: "+ health.getName());
+        }
+        if(exit != null){
+            System.out.println("PATHS: \n3-Exit: "+ exit.getName());
+        }
+        Scanner scan = new Scanner(System.in);
+        Division move = null;
+
+        while(choice != 1 && choice != 2 && choice != 3){
+            choice = scan.nextInt();
+            if(choice == 1 && target != null){
+                move = target;
+            }else if(choice == 2 && health != null){
+                move = health;
+            }else if(choice == 3 && exit != null){
+                move = exit;
+            }else{
+                System.out.println("Invalid choice");
+            }
+        }
+
+        game.moveHuman(move,human);
+        moves.addToRear(move);
+        System.out.println(human.getName() + " moved to " + human.getCurrentDivision());
+        return game.isExit(human.getCurrentDivision()) && playerIsEscaping;
+
+    }
+
+    private Division getDivFromIterator(Iterator<Division> it){
+        if(it.hasNext()) {
+            it.next();
+            return it.next();
+        }
+        return null;
     }
 
 

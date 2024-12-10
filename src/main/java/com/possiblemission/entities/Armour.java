@@ -11,6 +11,6 @@ public class Armour extends Items {
 
     @Override
     public String toString() {
-        return "Colete: " + value;
+        return "Colete: " + value + " Division: " + division;
     }
 }

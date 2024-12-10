@@ -100,7 +100,6 @@ public class ImportJson {
 
             }
 
-
             return game;
 
         } catch (IOException | JsonException e) {

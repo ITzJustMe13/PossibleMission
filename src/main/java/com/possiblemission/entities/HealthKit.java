@@ -11,6 +11,6 @@ public class HealthKit extends Items {
 
     @Override
     public String toString() {
-        return "HealthKit: " + value;
+        return "HealthKit: " + value + " Division: " + division;
     }
 }
