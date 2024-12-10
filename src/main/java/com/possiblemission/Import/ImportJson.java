@@ -110,30 +110,46 @@ public class ImportJson {
 
 
     public static UnorderedArrayList<FinishedGame> importGames(String path) {
-        UnorderedArrayList<FinishedGame> games = new UnorderedArrayList<>();
+        UnorderedArrayList<FinishedGame> gamesList = new UnorderedArrayList<>();
+
         try (FileReader reader = new FileReader(path)) {
-            JsonObject jsonObject = (JsonObject) Jsoner.deserialize(reader);
-            UnorderedArrayList<String> moves = new UnorderedArrayList<>();
+            Object data = Jsoner.deserialize(reader);
 
-            JsonArray movesJson = (JsonArray)jsonObject.get("moves");
+            if (data instanceof JsonObject) {
+                JsonObject rootObject = (JsonObject) data;
+                JsonArray gamesArray = (JsonArray) rootObject.get("games");
 
-            for(Object division : movesJson){
-                moves.addToRear((String)division);
+                for (Object obj : gamesArray) {
+                    if (obj instanceof JsonObject) {
+                        JsonObject gameObj = (JsonObject) obj;
+
+                        // Deserialize moves array
+                        JsonArray movesArray = (JsonArray) gameObj.get("moves");
+                        UnorderedArrayList<String> movesList = new UnorderedArrayList<>();
+                        for (Object moveObj : movesArray) {
+                            if (moveObj instanceof String) {
+                                movesList.addToRear((String) moveObj);
+                            }
+                        }
+
+                        // Create a FinishedGame object
+                        FinishedGame game = new FinishedGame(
+                                (String) gameObj.get("mission"),
+                                ((Number) gameObj.get("version")).intValue(),
+                                (String) gameObj.get("name"),
+                                ((Number) gameObj.get("health")).intValue(),
+                                movesList
+                        );
+
+                        gamesList.addToRear(game);
+                    }
+                }
             }
-
-            FinishedGame finishedGame = new FinishedGame((String)jsonObject.get("mission"),
-                    ((Number)jsonObject.get("version")).intValue(),
-                    (String)jsonObject.get("name"),
-                    ((Number)jsonObject.get("health")).intValue(),
-                    moves);
-
-
-            games.addToRear(finishedGame);
-
-            return games;
         } catch (IOException | JsonException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+
+        return gamesList;
 
     }
 }

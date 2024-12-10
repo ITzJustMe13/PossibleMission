@@ -60,6 +60,6 @@ public class FinishedGame {
     }
 
     public String toString() {
-        return "CodName: "+ codName + " Version: " + version + " Player: " + name + " HealthLeft: " + health + " Moves: " + moves;
+        return "CodName: "+ codName + "\nVersion: " + version + "\nPlayer: " + name + "\nHealthLeft: " + health + "\nMoves: " + moves + "\n--------------------------------------------------";
     }
 }

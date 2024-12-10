@@ -12,19 +12,24 @@ import com.possiblemission.game.GameManager;
 
 import java.util.Scanner;
 
+import static com.possiblemission.Import.ImportJson.importGames;
+import static com.possiblemission.Import.ImportJson.importJson;
+
 public class Menu {
 
     public static void main(String[] args) {
         Scanner in = new Scanner(System.in);
         System.out.println("Importing csv: Json/Import/game.json");
 
-        UnorderedArrayList<FinishedGame> gamesFinnish = ImportJson.importGames("Json/Export/gameData.json");
-        Game game = ImportJson.importJson("Json/Import/game.json");
+        UnorderedArrayList<FinishedGame> gamesFinnish = importGames("Json/Export/gameData.json");
+        Game game = importJson("Json/Import/game.json");
 
         System.out.println("Previous Games with that cod-mission: \n");
-        for(FinishedGame gameFinnish : gamesFinnish) {
-            if(gameFinnish.getCodName().equals(game.getCodName())) {
-                System.out.println(gameFinnish+ "\n");
+
+        // Iterate through the finished games and filter by codName
+        for (FinishedGame finishedGame : gamesFinnish) {
+            if (finishedGame.getCodName().equals(game.getCodName())) {
+                System.out.println(finishedGame + "\n");
             }
         }
 
