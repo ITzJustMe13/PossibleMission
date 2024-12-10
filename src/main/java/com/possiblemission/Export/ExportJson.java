@@ -16,10 +16,8 @@ public class ExportJson {
 
 
     public static void exportJson(GameManager gamemanager) {
-        // Path to the JSON file
         File file = new File("Json/Export/gameData.json");
 
-        // Create the new game data to add
         JsonObject jsonObject = new JsonObject();
         jsonObject.put("mission", gamemanager.getGame().getCodName());
         jsonObject.put("version", gamemanager.getGame().getCodId());
@@ -36,24 +34,21 @@ public class ExportJson {
             JsonObject rootObject;
             JsonArray dataArray;
 
-            // If the file exists, read the existing content
             if (file.exists()) {
                 try (FileReader reader = new FileReader(file)) {
                     Object existingData = Jsoner.deserialize(reader);
                     if (existingData instanceof JsonObject) {
                         rootObject = (JsonObject) existingData;
                     } else {
-                        rootObject = new JsonObject();  // In case it's not a valid JSON object
+                        rootObject = new JsonObject();
                     }
                 } catch (JsonException e) {
                     throw new RuntimeException(e);
                 }
             } else {
-                // If the file doesn't exist, create a new root object
                 rootObject = new JsonObject();
             }
 
-            // If the "games" array exists, append to it. Otherwise, create it.
             if (rootObject.containsKey("games")) {
                 dataArray = (JsonArray) rootObject.get("games");
             } else {
@@ -61,10 +56,8 @@ public class ExportJson {
                 rootObject.put("games", dataArray);
             }
 
-            // Add the new game data to the array
             dataArray.add(jsonObject);
 
-            // Write the updated JSON data back to the file
             try (FileWriter fileWriter = new FileWriter(file)) {
                 Jsoner.serialize(rootObject, fileWriter);
             }

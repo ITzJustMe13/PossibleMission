@@ -123,7 +123,7 @@ public class ImportJson {
                     if (obj instanceof JsonObject) {
                         JsonObject gameObj = (JsonObject) obj;
 
-                        // Deserialize moves array
+
                         JsonArray movesArray = (JsonArray) gameObj.get("moves");
                         UnorderedArrayList<String> movesList = new UnorderedArrayList<>();
                         for (Object moveObj : movesArray) {
@@ -132,7 +132,7 @@ public class ImportJson {
                             }
                         }
 
-                        // Create a FinishedGame object
+
                         FinishedGame game = new FinishedGame(
                                 (String) gameObj.get("mission"),
                                 ((Number) gameObj.get("version")).intValue(),

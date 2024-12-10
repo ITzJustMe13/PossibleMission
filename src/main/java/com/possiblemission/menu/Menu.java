@@ -26,7 +26,7 @@ public class Menu {
 
         System.out.println("Previous Games with that cod-mission: \n");
 
-        // Iterate through the finished games and filter by codName
+
         for (FinishedGame finishedGame : gamesFinnish) {
             if (finishedGame.getCodName().equals(game.getCodName())) {
                 System.out.println(finishedGame + "\n");
