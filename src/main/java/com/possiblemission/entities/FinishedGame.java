@@ -23,10 +23,6 @@ public class FinishedGame {
         return codName;
     }
 
-    public void setCodName(String codName) {
-        this.codName = codName;
-    }
-
     public int getVersion() {
         return version;
     }
@@ -37,26 +33,6 @@ public class FinishedGame {
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    public void setHealth(int health) {
-        this.health = health;
-    }
-
-    public UnorderedArrayList<String> getMoves() {
-        return moves;
-    }
-
-    public void addMove(String move) {
-        this.moves.addToRear(move);
     }
 
     public String toString() {

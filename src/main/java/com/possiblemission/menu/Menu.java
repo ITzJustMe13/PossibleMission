@@ -16,7 +16,7 @@ import static com.possiblemission.Import.ImportJson.importJson;
 
 public class Menu {
 
-    public static void main(String[] args) {
+    public static void menu() {
         Scanner in = new Scanner(System.in);
         System.out.println("Importing csv: Json/Import/game.json");
 
@@ -51,21 +51,6 @@ public class Menu {
             System.out.println("Invalid difficulty");
             return;
         }
-
-        if(manually) {
-            int start = 0;
-            UnorderedArrayList<Division> entries = game.getEntriesAndExits();
-            while(start == 0 && start < entries.size() ) {
-                System.out.println("Choose where to start\n");
-                for(int i = 0; i < entries.size(); i++) {
-                    Division division = entries.get(i);
-                    System.out.println(i+1+"-"+division.getName());
-                }
-                start = in.nextInt();
-                game.getPlayer().setCurrentDivision(entries.get(start-1));
-            }
-        }
-
 
         boolean result = gameManager.startGame(difficulty);
 

@@ -50,6 +50,32 @@ public class GameManager {
 
 
     public boolean startGame(Difficulty difficulty){
+        handleDifficulty(difficulty);
+        if(isManual){
+            setStartDiv();
+            return ManualGame();
+        }else {
+            return AutomaticGame();
+        }
+    }
+
+    private void setStartDiv(){
+        Scanner in = new Scanner(System.in);
+        int start = 0;
+        UnorderedArrayList<Division> entries = game.getEntriesAndExits();
+
+        while(start == 0 && start < entries.size() ) {
+            System.out.println("Choose where to start\n");
+            for(int i = 0; i < entries.size(); i++) {
+                Division division = entries.get(i);
+                System.out.println(i+1+"-"+division.getName());
+            }
+            start = in.nextInt();
+            game.getPlayer().setCurrentDivision(entries.get(start-1));
+        }
+    }
+
+    private void handleDifficulty(Difficulty difficulty){
         UnorderedArrayList<Enemy> enemies = (UnorderedArrayList<Enemy>) game.getEnemies();
         if(difficulty == Difficulty.EASY){
             int[] HealthPool = new int[] {10,15,20};
@@ -69,11 +95,6 @@ public class GameManager {
                 enemy.setHealth(HealthPool[(int)(Math.random() * HealthPool.length)]);
             }
             game.getPlayer().setBackpackSize(1);
-        }
-        if(isManual){
-            return ManualGame();
-        }else {
-            return AutomaticGame();
         }
     }
 
@@ -100,7 +121,7 @@ public class GameManager {
 
                     System.out.println("Current Division: "+ game.getPlayer().getCurrentDivision().getName());
                     int choice = 0;
-                    while(choice == 0 && choice != 1 && choice != 2){
+                    while(choice != 1 && choice != 2){
 
                         System.out.println("Want to 1-move or use 2-Healthkit? HK: ");
                         if(((Player) human).hasHealthKits()){
@@ -123,7 +144,7 @@ public class GameManager {
                             return false;
                         }
                         handleItems(human);
-                    }else if(choice == 2){
+                    }else {
                         System.out.println(human.getName() + " heals himself: +" +((Player) human).getTopHealthKit().getValue());
                         ((Player) human).useHealthKit();
                         System.out.println(human.getName() + "'s health: " + human.getHealth());
@@ -229,7 +250,7 @@ public class GameManager {
     private Player initializePlayer(String name){
         Player player = new Player(name,20,100);
         if(!isManual){
-            player.setCurrentDivision(game.getBestEntry());
+            player.setCurrentDivision(game.getBestEntry(game.getTarget().getDivision()));
         }
         return player;
     }

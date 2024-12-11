@@ -30,7 +30,7 @@ public class Game {
 
     private Player player;
 
-    private UnorderedListADT<Division> EntriesAndExits;
+    private UnorderedListADT<Division> entriesAndExits;
 
     public Game(String codName, int version) {
         this.codName = codName;
@@ -38,7 +38,7 @@ public class Game {
         map = new ExtendedUndirectedMatrixGraph<>();
         items = new UnorderedArrayList<>();
         enemies = new UnorderedArrayList<>();
-        EntriesAndExits = new UnorderedArrayList<>();
+        entriesAndExits = new UnorderedArrayList<>();
     }
 
     public void addDivision(String divisionName) {
@@ -116,108 +116,72 @@ public class Game {
         return player;
     }
 
-    public Division[] getAdjecentDivisions(Division division){
-        Division[] divisions = (Division[]) map.getAdjentVertexes(division);
-        return divisions;
-    }
-
     public void addEntryOrExit(Division division){
-        EntriesAndExits.addToRear(division);
+        entriesAndExits.addToRear(division);
     }
 
     public UnorderedArrayList<Division> getEntriesAndExits(){
-        return (UnorderedArrayList<Division>) EntriesAndExits;
+        return (UnorderedArrayList<Division>) entriesAndExits;
     }
 
     public void moveHuman(Division division, Human human){
         human.setCurrentDivision(division);
     }
 
-    public Division getClosestMedKit(Division division){
-        UnorderedArrayList<Division> medkitsLocations = new UnorderedArrayList<>();
+    private int calculatePathCost(Division start, Division end) {
+        Iterator<Division> iterator = map.iteratorShortestPath(start, end);
+        int cost = 0;
 
-        for (Items item : items){
-            if(item.getClass() == HealthKit.class){
-                medkitsLocations.addToRear(item.getDivision());
-            }
+        while (iterator.hasNext()) {
+            cost++;
+            iterator.next();
         }
 
-        UnorderedArrayList<Integer> cost = new UnorderedArrayList<>();
-
-        for(int i=0; i<medkitsLocations.size(); i++){
-            Iterator<Division> it = map.iteratorShortestPath(division,medkitsLocations.get(i));
-            int count = 0;
-
-            while (it.hasNext()){
-                count++;
-                it.next();
-            }
-
-            cost.addToRear(count);
-        }
-
-        int min = (int) Double.POSITIVE_INFINITY;
-        int i;
-        for (i = 0; i < medkitsLocations.size(); i++){
-            if (cost.get(i) < min){
-                min = cost.get(i);
-            }
-        }
-
-        return medkitsLocations.get(i-1);
+        return cost;
     }
 
-    public Division getBestEntry(){
-        UnorderedArrayList<Integer> cost = new UnorderedArrayList<>();
+    // Generic method to find the closest division
+    private Division findClosestDivision(Division from, UnorderedArrayList<Division> targets) {
+        Division closest = null;
+        int minCost = Integer.MAX_VALUE;
 
-        for(int i=0; i< getEntriesAndExits().size(); i++){
-            Iterator<Division> it = map.iteratorShortestPath(getEntriesAndExits().get(i),alvo.getDivision());
-            int count = 0;
-
-            while (it.hasNext()){
-                count++;
-                it.next();
-            }
-
-            cost.addToRear(count);
-        }
-
-        int min = (int) Double.POSITIVE_INFINITY;
-        int i;
-        for (i = 0; i < getEntriesAndExits().size(); i++){
-            if (cost.get(i) < min){
-                min = cost.get(i);
+        for (Division target : targets) {
+            int cost = calculatePathCost(from, target);
+            if (cost < minCost) {
+                minCost = cost;
+                closest = target;
             }
         }
 
-        return getEntriesAndExits().get(i-1);
+        return closest;
     }
 
+    // Get all health kit locations
+    private UnorderedArrayList<Division> getHealthKitLocations() {
+        UnorderedArrayList<Division> medkitLocations = new UnorderedArrayList<>();
 
-    public Division getClosestExit(Division division){
-        UnorderedArrayList<Integer> cost = new UnorderedArrayList<>();
-
-        for(int i=0; i< getEntriesAndExits().size(); i++){
-            Iterator<Division> it = map.iteratorShortestPath(division,getEntriesAndExits().get(i));
-            int count = 0;
-
-            while (it.hasNext()){
-                count++;
-                it.next();
-            }
-
-            cost.addToRear(count);
-        }
-
-        int min = (int) Double.POSITIVE_INFINITY;
-        int i;
-        for (i = 0; i < getEntriesAndExits().size(); i++){
-            if (cost.get(i) < min){
-                min = cost.get(i);
+        for (Items item : items) {
+            if (item instanceof HealthKit) {
+                medkitLocations.addToRear(item.getDivision());
             }
         }
 
-        return getEntriesAndExits().get(i-1);
+        return medkitLocations;
+    }
+
+    // Public methods
+
+    public Division getClosestMedKit(Division division) {
+        UnorderedArrayList<Division> medkitLocations = getHealthKitLocations();
+        return findClosestDivision(division, medkitLocations);
+    }
+
+    public Division getBestEntry(Division target) {
+        return findClosestDivision(target, (UnorderedArrayList<Division>) entriesAndExits);
+    }
+
+    public Division getClosestExit(Division division) {
+        return findClosestDivision(division, (UnorderedArrayList<Division>) entriesAndExits);
     }
 
     public boolean checkIfMapIsValid(){
