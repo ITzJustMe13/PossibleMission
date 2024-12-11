@@ -86,22 +86,21 @@ public class GameManager {
             currentTurn = human;
             if(human.getClass() == Player.class){
                 if(!human.isInBattle()){
+                    System.out.println("Enemies: ");
+                    for(Enemy enemy : game.getEnemies()){
+                        System.out.println(enemy.getName()+ " Division: " + enemy.getCurrentDivision().getName());
+                    }
+
+                    System.out.println("Items: ");
+                    for(Items item : game.getItems()){
+                        System.out.println(item.toString());
+                    }
+
+                    System.out.println("Target: "+ game.getTarget().getDivision().getName());
+
+                    System.out.println("Current Division: "+ game.getPlayer().getCurrentDivision().getName());
                     int choice = 0;
                     while(choice == 0 && choice != 1 && choice != 2){
-
-                        System.out.println("Enemies: ");
-                        for(Enemy enemy : game.getEnemies()){
-                            System.out.println(enemy.getName()+ " Division: " + enemy.getCurrentDivision().getName());
-                        }
-
-                        System.out.println("Items: ");
-                        for(Items item : game.getItems()){
-                            System.out.println(item.toString());
-                        }
-
-                        System.out.println("Target: "+ game.getTarget().getDivision().getName());
-
-                        System.out.println("Current Division: "+ game.getPlayer().getCurrentDivision().getName());
 
                         System.out.println("Want to 1-move or use 2-Healthkit? HK: ");
                         if(((Player) human).hasHealthKits()){
@@ -109,6 +108,10 @@ public class GameManager {
                         }
                         Scanner scanner = new Scanner(System.in);
                         choice = scanner.nextInt();
+                        if (choice == 2 && ((Player) human).getTopHealthKit() == null) {
+                            System.out.println(human.getName() + " doesn't have medkits");
+                            choice = 0;
+                        }
                     }
 
 
@@ -121,8 +124,9 @@ public class GameManager {
                         }
                         handleItems(human);
                     }else if(choice == 2){
-                        System.out.println("Player heals himself: +" +((Player) human).getTopHealthKit().getValue());
+                        System.out.println(human.getName() + " heals himself: +" +((Player) human).getTopHealthKit().getValue());
                         ((Player) human).useHealthKit();
+                        System.out.println(human.getName() + "'s health: " + human.getHealth());
                     }
                 }else{
                     enemiesDivision = (UnorderedArrayList<Enemy>) human.getCurrentDivision().getEnemies();
@@ -134,7 +138,7 @@ public class GameManager {
 
                 if(PlayerWins()){
                     playerIsEscaping = true;
-                    System.out.println("Player captured the target!");
+                    System.out.println(human.getName() + " captured the target!");
                 }
 
             }else{
@@ -158,8 +162,9 @@ public class GameManager {
             if(human.getClass() == Player.class){
                 Iterator<Division> it = null;
                 if(((Player) human).hasHealthKits() && (((Player) human).getMaxHealth() - human.getHealth()) >= ((Player) human).getTopHealthKit().getValue()){
-                    System.out.println("Player heals himself: +" +((Player) human).getTopHealthKit().getValue());
+                    System.out.println(human.getName() + " heals himself: +" +((Player) human).getTopHealthKit().getValue());
                     ((Player) human).useHealthKit();
+                    System.out.println(human.getName() + "'s health: " + human.getHealth());
                 } else if(human.isInBattle()){
                     enemiesDivision = (UnorderedArrayList<Enemy>) human.getCurrentDivision().getEnemies();
                     boolean playerWins = Battle(human,enemiesDivision);
@@ -177,7 +182,7 @@ public class GameManager {
                 }
                 if(PlayerWins()){
                     playerIsEscaping = true;
-                    System.out.println("Player captured the target!");
+                    System.out.println(human.getName() + " captured the target!");
                 }
 
             }else{
@@ -201,7 +206,7 @@ public class GameManager {
             }
         }else{
             human.setHealth(human.getHealth() - enemies.first().getPower());
-            System.out.println(enemies.first().getName() + " strikes " + enemies.first().getPower() + " health from: Player");
+            System.out.println(enemies.first().getName() + " strikes " + enemies.first().getPower() + " health from: " + human.getName());
         }
         return human.getHealth() > 0;
     }
@@ -211,7 +216,7 @@ public class GameManager {
         while (iterator.hasNext()) {
             Enemy enemy = iterator.next();
             enemy.setHealth(enemy.getHealth() - human.getPower());
-            System.out.println("Player strikes " + human.getPower() + " health from: " + enemy.getName());
+            System.out.println(human.getName() + " strikes " + human.getPower() + " health from: " + enemy.getName());
             if (enemy.getHealth() <= 0) {
                 System.out.println(enemy.getName() + " dies...");
                 iterator.remove();
@@ -260,7 +265,7 @@ public class GameManager {
             if(enemy.getCurrentDivision().equals(game.getPlayer().getCurrentDivision())){
                 enemies = (UnorderedArrayList<Enemy>) enemy.getCurrentDivision().getEnemies();
 
-                System.out.println(enemy.getName() + " started battle with Player");
+                System.out.println(enemy.getName() + " started battle with " + human.getName());
                 human.setIsInBattle(true);
                 game.getPlayer().setIsInBattle(true);
                 boolean playerWinsBattle = Battle(game.getPlayer(),enemies);
@@ -293,14 +298,14 @@ public class GameManager {
     private void handleItems(Human human){
         Items item = game.hasItem(human.getCurrentDivision());
         if(item != null){
-            System.out.println("Player found an item!");
+            System.out.println(human.getName() + " found an item!");
             if(item.getClass().equals(HealthKit.class)){
-                System.out.println("Player added a healthkit with: "+ item.getValue() +" health");
+                System.out.println(human.getName() + " added a healthkit with: "+ item.getValue() +" health");
                 ((Player) human).addHealthKit((HealthKit) item);
                 game.getItems().remove(item);
                 human.getCurrentDivision().removeItem();
             }else{
-                System.out.println("Player used a armour: +" + item.getValue());
+                System.out.println(human.getName() + " used a armour: +" + item.getValue());
                 ((Player) human).useArmour((Armour) item);
             }
         }
@@ -309,7 +314,7 @@ public class GameManager {
     private boolean handleEnemies(Human human){
         enemiesDivision = game.hasEnemies(human.getCurrentDivision());
         if(!enemiesDivision.isEmpty()){
-            System.out.println("Player started battle");
+            System.out.println(human.getName() + " started battle");
             human.setIsInBattle(true);
             for(Enemy enemy: human.getCurrentDivision().getEnemies()){
                 enemy.setIsInBattle(true);

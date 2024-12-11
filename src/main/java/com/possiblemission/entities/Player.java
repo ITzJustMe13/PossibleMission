@@ -35,6 +35,7 @@ public class Player extends Human {
     }
 
     public void useHealthKit(){
+        if (backpack.isEmpty()) return;
         HealthKit healthKit = backpack.pop();
         int heal = healthKit.getValue();
         int healthDiference = this.maxHealth - this.health;
@@ -50,7 +51,7 @@ public class Player extends Human {
     }
 
     public HealthKit getTopHealthKit() {
-        return backpack.peek();
+        return (backpack.isEmpty()) ? null : backpack.peek();
     }
 
     public void setBackpackSize(int backpackSize) {
