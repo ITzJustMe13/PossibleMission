@@ -14,22 +14,32 @@ import pt.ipp.estg.ed.QueueADT;
 import java.util.Iterator;
 import java.util.Scanner;
 
+/**
+ * Manages the game flow, including player and enemy turns, movement, battles, and game state.
+ */
 public class GameManager {
-
+    /** The game instance being managed. */
     private Game game;
-
+    /** Queue for managing the turn order of humans in the game. */
     private QueueADT<Human> turn;
-
+    /** Indicates whether the game is played manually or automatically. */
     private boolean isManual;
-
+    /** The human whose turn is currently being processed. */
     private Human currentTurn;
-
+    /** List of divisions where the player has moved. */
     private UnorderedArrayList<Division> moves;
-
+    /** Flag to determine if the player is escaping the game map. */
     private boolean playerIsEscaping;
-
+    /** List of current enemies division. */
     UnorderedArrayList<Enemy> enemiesDivision;
 
+    /**
+     * Constructs a GameManager instance.
+     *
+     * @param game       The game instance.
+     * @param isManual   Whether the game is manual or automatic.
+     * @param playerName The name of the player.
+     */
     public GameManager(Game game, boolean isManual, String playerName){
         this.game = game;
         this.turn = new LinkedQueue<>();
@@ -44,11 +54,21 @@ public class GameManager {
         }
     }
 
-    private boolean PlayerWins(){
+    /**
+     * Checks if the player is winning by reaching the target division.
+     *
+     * @return true if the player wins, false otherwise.
+     */
+    private boolean PlayerWinning(){
         return game.getPlayer().getCurrentDivision() == game.getTarget().getDivision();
     }
 
-
+    /**
+     * Starts the game based on the selected difficulty and mode.
+     *
+     * @param difficulty The difficulty level of the game.
+     * @return true if the player wins, false otherwise.
+     */
     public boolean startGame(Difficulty difficulty){
         handleDifficulty(difficulty);
         if(isManual){
@@ -59,6 +79,9 @@ public class GameManager {
         }
     }
 
+    /**
+     * Prompts the player to select a starting division.
+     */
     private void setStartDiv(){
         Scanner in = new Scanner(System.in);
         int start = 0;
@@ -75,6 +98,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Adjusts game settings based on the selected difficulty.
+     *
+     * @param difficulty The difficulty level of the game.
+     */
     private void handleDifficulty(Difficulty difficulty){
         UnorderedArrayList<Enemy> enemies = (UnorderedArrayList<Enemy>) game.getEnemies();
         if(difficulty == Difficulty.EASY){
@@ -98,6 +126,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Executes the game loop for manual mode.
+     *
+     * @return true if the player wins, false otherwise.
+     */
     private Boolean ManualGame(){
         while(true){
             Human human = turn.dequeue();
@@ -157,7 +190,7 @@ public class GameManager {
                     }
                 }
 
-                if(PlayerWins()){
+                if(PlayerWinning()){
                     playerIsEscaping = true;
                     System.out.println(human.getName() + " captured the target!");
                 }
@@ -173,6 +206,12 @@ public class GameManager {
         }
     }
 
+
+    /**
+     * Executes the game loop for automatic mode.
+     *
+     * @return true if the player wins, false otherwise.
+     */
     private boolean AutomaticGame(){
         while(true){
             Human human = turn.dequeue();
@@ -201,7 +240,7 @@ public class GameManager {
                     }
                     handleItems(human);
                 }
-                if(PlayerWins()){
+                if(PlayerWinning()){
                     playerIsEscaping = true;
                     System.out.println(human.getName() + " captured the target!");
                 }
@@ -217,7 +256,14 @@ public class GameManager {
         }
     }
 
-
+    /**
+     *
+     * Battle method that handles the fight.
+     *
+     * @param human the player
+     * @param enemies list of enemies in the fight
+     * @return true if player still alive , false if he dies.
+     */
     private boolean Battle(Human human, UnorderedArrayList<Enemy> enemies){
         if(currentTurn.getClass().equals(Player.class)){
             PlayerStrike(human, enemies);
@@ -232,6 +278,13 @@ public class GameManager {
         return human.getHealth() > 0;
     }
 
+    /**
+     *
+     * Method that represents the player action in combat.
+     *
+     * @param human the player
+     * @param enemies list of enemies to strike
+     */
     private void PlayerStrike(Human human, UnorderedArrayList<Enemy> enemies) {
         Iterator<Enemy> iterator = enemies.iterator();
         while (iterator.hasNext()) {
@@ -247,6 +300,13 @@ public class GameManager {
         }
     }
 
+
+    /**
+     * Initializes the player entity with a name and default attributes.
+     *
+     * @param name The player's name.
+     * @return The initialized player.
+     */
     private Player initializePlayer(String name){
         Player player = new Player(name,20,100);
         if(!isManual){
@@ -255,6 +315,12 @@ public class GameManager {
         return player;
     }
 
+    /**
+     * Method that handles the Enemy turn
+     *
+     * @param human enemy
+     * @return false if player dies in enemy turn, null if nothing happens
+     */
     private Boolean EnemyTurn(Human human){
         UnorderedArrayList<Enemy> enemies = new UnorderedArrayList<>();
         if(!human.isInBattle()){
@@ -307,15 +373,30 @@ public class GameManager {
         return null;
     }
 
+    /**
+     * Method that returns the game instance.
+     *
+     * @return game instance
+     */
     public Game getGame(){
         return game;
     }
 
+    /**
+     * Method that returns the player moves during the game.
+     *
+     * @return list of the player moves
+     */
     public UnorderedArrayList<Division> getMoves(){
         return moves;
     }
 
 
+    /**
+     * Handles the items found by the current human in their division.
+     *
+     * @param human The human entity.
+     */
     private void handleItems(Human human){
         Items item = game.hasItem(human.getCurrentDivision());
         if(item != null){
@@ -332,6 +413,12 @@ public class GameManager {
         }
     }
 
+    /**
+     * Method that handles if the Player is in the same division as enemies.
+     *
+     * @param human player
+     * @return true if player alive, false if he dies.
+     */
     private boolean handleEnemies(Human human){
         enemiesDivision = game.hasEnemies(human.getCurrentDivision());
         if(!enemiesDivision.isEmpty()){
@@ -345,6 +432,12 @@ public class GameManager {
         return true;
     }
 
+    /**
+     * Method that handles automatic player movement.
+     *
+     * @param human the player
+     * @return true if player escapes with target, false if it is in game
+     */
     private boolean handleMovement(Human human){
         Iterator<Division> it = null;
         if(playerIsEscaping){
@@ -365,6 +458,12 @@ public class GameManager {
         return false;
     }
 
+    /**
+     * Method that handles the player Manual game moves
+     *
+     * @param human the player
+     * @return true if the player escapes with the target, false if the game continues
+     */
     private boolean handleManualMove(Human human){
         Iterator<Division> itTarget = null;
         Iterator<Division> itHealth = null;
@@ -425,6 +524,12 @@ public class GameManager {
 
     }
 
+    /**
+     * Helper method that returns the next division from the iterator.
+     *
+     * @param it iterator
+     * @return the next division
+     */
     private Division getDivFromIterator(Iterator<Division> it){
         if(it.hasNext()) {
             it.next();

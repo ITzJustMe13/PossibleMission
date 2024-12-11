@@ -13,8 +13,16 @@ import com.possiblemission.game.Game;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Class that imports the jsons into the game
+ */
 public class ImportJson {
 
+    /**
+     * Imports the game's json
+     * @param path
+     * @return
+     */
     public static Game importJson(String path) {
 
         try (FileReader reader = new FileReader(path)) {
@@ -109,6 +117,11 @@ public class ImportJson {
     }
 
 
+    /**
+     * Imports the previous game's json
+     * @param path
+     * @return
+     */
     public static UnorderedArrayList<FinishedGame> importGames(String path) {
         UnorderedArrayList<FinishedGame> gamesList = new UnorderedArrayList<>();
 

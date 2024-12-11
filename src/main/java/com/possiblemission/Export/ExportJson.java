@@ -12,20 +12,27 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Class that exports the game's json
+ */
 public class ExportJson {
 
 
-    public static void exportJson(GameManager gamemanager) {
+    /**
+     * Method that exports to the json
+     * @param gameManager the game that was played.
+     */
+    public static void exportJson(GameManager gameManager) {
         File file = new File("Json/Export/gameData.json");
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.put("mission", gamemanager.getGame().getCodName());
-        jsonObject.put("version", gamemanager.getGame().getCodId());
-        jsonObject.put("name", gamemanager.getGame().getPlayer().getName());
-        jsonObject.put("health", gamemanager.getGame().getPlayer().getHealth());
+        jsonObject.put("mission", gameManager.getGame().getCodName());
+        jsonObject.put("version", gameManager.getGame().getCodId());
+        jsonObject.put("name", gameManager.getGame().getPlayer().getName());
+        jsonObject.put("health", gameManager.getGame().getPlayer().getHealth());
 
         JsonArray list = new JsonArray();
-        for (Division div : gamemanager.getMoves()) {
+        for (Division div : gameManager.getMoves()) {
             list.add(div.getName());
         }
         jsonObject.put("moves", list);

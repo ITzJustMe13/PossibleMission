@@ -4,7 +4,6 @@ import com.possiblemission.Enums.Difficulty;
 import com.possiblemission.Export.ExportJson;
 import com.possiblemission.datastructures.abstractdatatypes.lists.unordered.UnorderedArrayList;
 import com.possiblemission.entities.FinishedGame;
-import com.possiblemission.game.Division;
 import com.possiblemission.game.Game;
 import com.possiblemission.game.GameManager;
 
@@ -14,8 +13,14 @@ import java.util.Scanner;
 import static com.possiblemission.Import.ImportJson.importGames;
 import static com.possiblemission.Import.ImportJson.importJson;
 
+/**
+ * Class that represents the menu of the game.
+ */
 public class Menu {
 
+    /**
+     * Menu of the game.
+     */
     public static void menu() {
         Scanner in = new Scanner(System.in);
         System.out.println("Importing csv: Json/Import/game.json");
