@@ -140,25 +140,25 @@ public class GameManager {
             currentTurn = human;
             if(human.getClass() == Player.class){
                 if(!human.isInBattle()){
-                    System.out.println("Enemies: ");
+                    System.out.println("------------------------------------------------\nEnemies: ");
                     for(Enemy enemy : game.getEnemies()){
                         System.out.println(enemy.getName()+ " Division: " + enemy.getCurrentDivision().getName());
                     }
 
-                    System.out.println("Items: ");
+                    System.out.println("------------------------------------------------\nItems: ");
                     for(Items item : game.getItems()){
                         System.out.println(item.toString());
                     }
 
-                    System.out.println("Target: "+ game.getTarget().getDivision().getName());
+                    System.out.println("------------------------------------------------\nTarget: "+ game.getTarget().getDivision().getName());
 
-                    System.out.println("Current Division: "+ game.getPlayer().getCurrentDivision().getName());
+                    System.out.println("------------------------------------------------\nCurrent Division: "+ game.getPlayer().getCurrentDivision().getName());
                     int choice = 0;
                     while(choice != 1 && choice != 2){
 
-                        System.out.println("Want to 1-move or use 2-Healthkit? HK: ");
+                        System.out.println("Want to 1-move or use 2-Healthkit? Current Health: " + game.getPlayer().getHealth());
                         if(((Player) human).hasHealthKits()){
-                            System.out.println(((Player) human).getTopHealthKit().getValue());
+                            System.out.println("HealthKit: " + ((Player) human).getTopHealthKit().getValue());
                         }
                         Scanner scanner = new Scanner(System.in);
                         choice = scanner.nextInt();
