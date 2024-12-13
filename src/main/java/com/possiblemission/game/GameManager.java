@@ -220,21 +220,22 @@ public class GameManager {
     private boolean AutomaticGame() throws InterruptedException {
         UnorderedArrayList<Division> bestMoves = new UnorderedArrayList<>();
         int bestHealth = 0;
-        for(int i = 0; i < game.getEntriesAndExits().size(); i++) {
+        UnorderedArrayList<Division> entries = game.getEntriesAndExits();
+        for(int i = 0; i < entries.size(); i++) {
+            resetGame();
             game.getPlayer().setCurrentDivision(game.getEntriesAndExits().get(i));
-
             this.moves = new UnorderedArrayList<>();
             boolean result = AutomaticTurn();
             if(result && game.getPlayer().getHealth() > bestHealth){
                 bestMoves = moves;
                 bestHealth = game.getPlayer().getHealth();
             }
-            resetGame();
         }
         if(bestMoves.isEmpty()){
             return false;
         }
         this.moves = bestMoves;
+        this.game.getPlayer().setHealth(bestHealth);
 
         System.out.println("BEST PATH: ");
         System.out.println(moves);

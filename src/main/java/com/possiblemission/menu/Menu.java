@@ -60,12 +60,10 @@ public class Menu {
         boolean result = gameManager.startGame(difficulty);
 
         if(result) {
-            System.out.println("Player " + playerName + " won the game with " + game.getPlayer().getHealth() + " health");
+            System.out.println("Player " + playerName + " won the game with " + gameManager.getGame().getPlayer().getHealth() + " health");
         }else {
             System.out.println("Player " + playerName + " lost the game");
         }
-
-        ExportJson.exportJson(gameManager);
-
+        if (manually) ExportJson.exportJson(gameManager);
     }
 }
