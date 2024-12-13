@@ -14,6 +14,8 @@ import pt.ipp.estg.ed.QueueADT;
 import java.util.Iterator;
 import java.util.Scanner;
 
+import static com.possiblemission.Import.ImportJson.importJson;
+
 /**
  * Manages the game flow, including player and enemy turns, movement, battles, and game state.
  */
@@ -31,8 +33,9 @@ public class GameManager {
     /** Flag to determine if the player is escaping the game map. */
     private boolean playerIsEscaping;
     /** List of current enemies division. */
-    UnorderedArrayList<Enemy> enemiesDivision;
-
+    private UnorderedArrayList<Enemy> enemiesDivision;
+    private String playerName;
+    private Difficulty difficulty;
     /**
      * Constructs a GameManager instance.
      *
@@ -47,9 +50,10 @@ public class GameManager {
         this.playerIsEscaping = false;
         this.moves = new UnorderedArrayList<>();
         this.enemiesDivision = new UnorderedArrayList<>();
-        game.addPlayer(initializePlayer(playerName));
-        turn.enqueue(game.getPlayer());
-        for(Enemy enemy : game.getEnemies()){
+        this.playerName = playerName;
+        this.game.addPlayer(initializePlayer(playerName));
+        turn.enqueue(this.game.getPlayer());
+        for(Enemy enemy : this.game.getEnemies()){
             turn.enqueue(enemy);
         }
     }
@@ -69,7 +73,8 @@ public class GameManager {
      * @param difficulty The difficulty level of the game.
      * @return true if the player wins, false otherwise.
      */
-    public boolean startGame(Difficulty difficulty){
+    public boolean startGame(Difficulty difficulty) throws InterruptedException {
+        this.difficulty = difficulty;
         handleDifficulty(difficulty);
         if(isManual){
             setStartDiv();
@@ -212,13 +217,54 @@ public class GameManager {
      *
      * @return true if the player wins, false otherwise.
      */
-    private boolean AutomaticGame(){
+    private boolean AutomaticGame() throws InterruptedException {
+        UnorderedArrayList<Division> bestMoves = new UnorderedArrayList<>();
+        int bestHealth = 0;
+        UnorderedArrayList<Division> allEntries = game.getEntriesAndExits();
+        for(Division entry: allEntries){
+            game.getPlayer().setCurrentDivision(entry);
+
+            this.moves = new UnorderedArrayList<>();
+            boolean result = AutomaticTurn();
+            if(result && game.getPlayer().getHealth() > bestHealth){
+                bestMoves = moves;
+            }
+            resetGame();
+        }
+        if(bestMoves.isEmpty()){
+            return false;
+        }
+        this.moves = bestMoves;
+
+        System.out.println("BEST PATH: ");
+        System.out.println(moves);
+        System.out.println("Remaining Player Health: " + game.getPlayer().getHealth());
+
+        return true;
+    }
+
+    private void resetGame(){
+        System.out.println("Reseting game to get best possible solution ....");
+        playerIsEscaping = false;
+        game = importJson("Json/Import/game.json");
+        game.addPlayer(initializePlayer(playerName));
+        turn = new LinkedQueue<>();
+        turn.enqueue(game.getPlayer());
+        for(Enemy enemy : game.getEnemies()){
+            turn.enqueue(enemy);
+        }
+        handleDifficulty(difficulty);
+    }
+
+
+    private boolean AutomaticTurn() throws InterruptedException {
         while(true){
             Human human = turn.dequeue();
             while(human.getHealth() <= 0){
                 human = turn.dequeue();
             }
             currentTurn = human;
+
             if(human.getClass() == Player.class){
                 Iterator<Division> it = null;
                 if(((Player) human).hasHealthKits() && (((Player) human).getMaxHealth() - human.getHealth()) >= ((Player) human).getTopHealthKit().getValue()){
@@ -253,6 +299,7 @@ public class GameManager {
 
             }
             turn.enqueue(human);
+            //Thread.sleep(1000);
         }
     }
 
@@ -272,8 +319,8 @@ public class GameManager {
                 return true;
             }
         }else{
-            human.setHealth(human.getHealth() - enemies.first().getPower());
-            System.out.println(enemies.first().getName() + " strikes " + enemies.first().getPower() + " health from: " + human.getName());
+            human.setHealth(human.getHealth() - currentTurn.getPower());
+            System.out.println(currentTurn.getName() + " strikes " + currentTurn.getPower() + " health from: " + human.getName());
         }
         return human.getHealth() > 0;
     }
@@ -308,11 +355,7 @@ public class GameManager {
      * @return The initialized player.
      */
     private Player initializePlayer(String name){
-        Player player = new Player(name,20,100);
-        if(!isManual){
-            player.setCurrentDivision(game.getBestEntry(game.getTarget().getDivision()));
-        }
-        return player;
+        return new Player(name,20,100);
     }
 
     /**
@@ -335,7 +378,7 @@ public class GameManager {
                 enemy.getCurrentDivision().addEnemy(enemy);
                 System.out.println(enemy.getName()+ " moved to: " + lastDiv.getName());
             }else{
-                Iterator<Division> it = game.getMap().iteratorBFS(enemy.getCurrentDivision());
+                Iterator<Division> it = game.getMap().iteratorDFS(enemy.getCurrentDivision());
                 if(it.hasNext()){
                     it.next();
                     Division nextDiv = it.next();
@@ -352,7 +395,7 @@ public class GameManager {
             if(enemy.getCurrentDivision().equals(game.getPlayer().getCurrentDivision())){
                 enemies = (UnorderedArrayList<Enemy>) enemy.getCurrentDivision().getEnemies();
 
-                System.out.println(enemy.getName() + " started battle with " + human.getName());
+                System.out.println(enemy.getName() + " started battle with " + game.getPlayer().getName());
                 human.setIsInBattle(true);
                 game.getPlayer().setIsInBattle(true);
                 boolean playerWinsBattle = Battle(game.getPlayer(),enemies);

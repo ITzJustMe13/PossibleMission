@@ -21,7 +21,7 @@ public class Menu {
     /**
      * Menu of the game.
      */
-    public static void menu() {
+    public static void menu() throws InterruptedException {
         Scanner in = new Scanner(System.in);
         System.out.println("Importing csv: Json/Import/game.json");
 
