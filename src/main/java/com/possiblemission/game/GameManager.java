@@ -34,7 +34,7 @@ public class GameManager {
     private boolean playerIsEscaping;
     /** List of current enemies division. */
     private UnorderedArrayList<Enemy> enemiesDivision;
-    private String playerName;
+    private Player player;
     private Difficulty difficulty;
     /**
      * Constructs a GameManager instance.
@@ -50,8 +50,8 @@ public class GameManager {
         this.playerIsEscaping = false;
         this.moves = new UnorderedArrayList<>();
         this.enemiesDivision = new UnorderedArrayList<>();
-        this.playerName = playerName;
-        this.game.addPlayer(initializePlayer(playerName));
+        this.player = initializePlayer(playerName);
+        this.game.addPlayer(player);
         turn.enqueue(this.game.getPlayer());
         for(Enemy enemy : this.game.getEnemies()){
             turn.enqueue(enemy);
@@ -220,14 +220,14 @@ public class GameManager {
     private boolean AutomaticGame() throws InterruptedException {
         UnorderedArrayList<Division> bestMoves = new UnorderedArrayList<>();
         int bestHealth = 0;
-        UnorderedArrayList<Division> allEntries = game.getEntriesAndExits();
-        for(Division entry: allEntries){
-            game.getPlayer().setCurrentDivision(entry);
+        for(int i = 0; i < game.getEntriesAndExits().size(); i++) {
+            game.getPlayer().setCurrentDivision(game.getEntriesAndExits().get(i));
 
             this.moves = new UnorderedArrayList<>();
             boolean result = AutomaticTurn();
             if(result && game.getPlayer().getHealth() > bestHealth){
                 bestMoves = moves;
+                bestHealth = game.getPlayer().getHealth();
             }
             resetGame();
         }
@@ -238,7 +238,7 @@ public class GameManager {
 
         System.out.println("BEST PATH: ");
         System.out.println(moves);
-        System.out.println("Remaining Player Health: " + game.getPlayer().getHealth());
+        System.out.println("Remaining Player Health: " + bestHealth);
 
         return true;
     }
@@ -247,7 +247,8 @@ public class GameManager {
         System.out.println("Reseting game to get best possible solution ....");
         playerIsEscaping = false;
         game = importJson("Json/Import/game.json");
-        game.addPlayer(initializePlayer(playerName));
+        player = new Player(this.player.getName(),this.player.getPower(),this.player.getMaxHealth());
+        game.addPlayer(player);
         turn = new LinkedQueue<>();
         turn.enqueue(game.getPlayer());
         for(Enemy enemy : game.getEnemies()){
