@@ -119,4 +119,9 @@ public class Player extends Human {
         return maxHealth;
     }
 
+    @Override
+    public String toString() {
+        return name + "Power: " + power + " Health: "+ health;
+    }
+
 }
